@@ -37,6 +37,13 @@ public class RpcClientProxy implements InvocationHandler {
                 .parameters(args)
                 .build();
 
+//        RpcRequestBody rpcRequestBody = RpcRequestBody.builderaConsturctor()
+//                .setInterfaceName(method.getName())
+//                .setMethodName(method.getName())
+//                .setParamTypes(method.getParameterTypes())
+//                .setParameters(args)
+//                .build();
+
         // ByteArrayOutputStream 对byte类型数据进行写入的类 相当于一个中间缓冲层，将类写入到文件等其他outputStream。它是对字节进行操作，属于内存操作流
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
