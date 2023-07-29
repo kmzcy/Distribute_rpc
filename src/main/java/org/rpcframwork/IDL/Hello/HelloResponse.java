@@ -1,12 +1,13 @@
-package org.rpcframwork.IDL.Hellow;
+package org.rpcframwork.IDL.Hello;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.io.Serializable;
 
+
 @Data
 @AllArgsConstructor
-public class HellowRequest implements Serializable {
-    private String name;
+public class HelloResponse implements Serializable {
+    private String msg;
 }

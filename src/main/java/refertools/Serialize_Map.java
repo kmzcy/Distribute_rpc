@@ -2,6 +2,7 @@ package refertools;
 
 import java.io.*;
 import java.util.HashMap;
+// 对于map类的序列化操作，在远程模型之中，大部分的模型数据都需要通过map进行传输。
 
 public class Serialize_Map {
     public static void main(String [] args) {
