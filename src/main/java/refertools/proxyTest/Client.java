@@ -2,6 +2,8 @@ package refertools.proxyTest;
 
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 public class Client{
@@ -25,6 +27,30 @@ public class Client{
 		 */
         UserService proxy = (UserService) Proxy.newProxyInstance(classLoader, interfaces, logHandler);
         // 调用代理的方法
+        System.out.println("proxy.getClass(): " + proxy.getClass());
+        System.out.println("UserService.class: " + UserService.class);
+        try{
+            System.out.println("class: " + Class.forName("refertools.proxyTest.UserService"));
+        }
+        catch (ClassNotFoundException e){
+            e.printStackTrace();
+        }
+
+        System.out.println("method: ");
+        Method[] methods = proxy.getClass().getDeclaredMethods();
+        for (Method method : methods) {
+            System.out.println(method.getName());
+        }
+
+        System.out.println("+++++++++++++++++++++ ");
+        try {
+            methods[3].invoke(proxy);
+        }
+        catch (InvocationTargetException e){
+            e.printStackTrace();
+        }
+
+        System.out.println("+++++++++++++++++++++ ");
         proxy.select();
         proxy.update();
 

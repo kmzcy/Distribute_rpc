@@ -1,8 +1,5 @@
 package server;
 
-import org.rpcframwork.IDL.Hello.HelloRequest;
-import org.rpcframwork.IDL.Hello.HelloResponse;
-import org.rpcframwork.IDL.Hello.HelloService;
 import org.rpcframwork.IDL.ping.PingRequest;
 import org.rpcframwork.IDL.ping.PingResponse;
 import org.rpcframwork.IDL.ping.PingService;

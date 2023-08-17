@@ -12,6 +12,8 @@ public class TestClient {
         HelloService helloService = proxy.getService(HelloService.class);
         // 构造出请求对象HelloRequest
         HelloRequest helloRequest = new HelloRequest("from tesClient");
+
+        // 调用hellow 方法
         // rpc调用并返回结果对象HelloResponse
         HelloResponse helloResponse = helloService.hello(helloRequest);
         // 从HelloResponse中获取msg

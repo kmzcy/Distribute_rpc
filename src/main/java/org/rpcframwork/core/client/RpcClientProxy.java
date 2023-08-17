@@ -17,11 +17,10 @@ import java.lang.reflect.Proxy;
 public class RpcClientProxy implements InvocationHandler {
     @SuppressWarnings("unchecked")
     public <T> T getService(Class<T> clazz) {
-        return (T) Proxy.newProxyInstance(
-                clazz.getClassLoader(),
-                new Class<?>[]{clazz},
-                this
-        );
+        // 如果没有实现类，在调用Proxy.newProxyInstance时，要注意传入的interfaces参数，
+        // 没有实现类，则需要用new Class[]{ProxyInterface.class}的方法传入，这样就可以生成代理了，
+        // 如果传的是new Class[0]，那么默认只会给toString方法代理
+        return (T) Proxy.newProxyInstance(clazz.getClassLoader(), new Class<?>[]{clazz}, this);
     }
 
     @Override
