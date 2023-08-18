@@ -1,4 +1,4 @@
-package refertools.proxyTest;
+package referTooltest.proxyTest;
 
 public interface UserService {
     public void select();

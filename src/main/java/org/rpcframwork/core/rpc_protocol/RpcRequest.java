@@ -1,12 +1,16 @@
 package org.rpcframwork.core.rpc_protocol;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 import java.io.Serializable;
 
-@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 @Builder
+@ToString
+
 // Serializable：对象变成可传输的字节序列
 public class RpcRequest implements Serializable {
     // 协议头部分

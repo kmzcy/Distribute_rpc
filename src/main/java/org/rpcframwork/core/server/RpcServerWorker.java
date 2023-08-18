@@ -4,6 +4,7 @@ import org.rpcframwork.core.codec.RpcRequestBody;
 import org.rpcframwork.core.codec.RpcResponseBody;
 import org.rpcframwork.core.rpc_protocol.RpcRequest;
 import org.rpcframwork.core.rpc_protocol.RpcResponse;
+import org.rpcframwork.core.serialize.kyro.KryoSerializer;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
@@ -35,9 +36,9 @@ public class RpcServerWorker implements Runnable{ //继承runnable，作为一�
 
                 // 3、将rpcRequest中的body部分解码出来变成RpcRequestBody【codec层】
                 byte[] body = rpcRequest.getBody();
-                ByteArrayInputStream bais = new ByteArrayInputStream(body);
-                ObjectInputStream ois = new ObjectInputStream(bais);
-                RpcRequestBody rpcRequestBody = (RpcRequestBody) ois.readObject();
+                // RpcRequestBody对象反序列化
+                KryoSerializer kryoSerializer = new KryoSerializer();
+                RpcRequestBody rpcRequestBody = kryoSerializer.deserialize(body, RpcRequestBody.class) ;
 
                 // 调用服务
                 Object service = registeredService.get(rpcRequestBody.getInterfaceName());
@@ -49,10 +50,8 @@ public class RpcServerWorker implements Runnable{ //继承runnable，作为一�
                 RpcResponseBody rpcResponseBody = RpcResponseBody.builder()
                         .retObject(returnObject)
                         .build();
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ObjectOutputStream oos = new ObjectOutputStream(baos);
-                oos.writeObject(rpcResponseBody);
-                byte[] bytes = baos.toByteArray();
+                // RpcResponseBody对象序列化
+                byte[] bytes = kryoSerializer.serialize(rpcResponseBody);
 
                 // 2、将返回编码作为body，加上header，生成RpcResponse协议【protocol层】
                 RpcResponse rpcResponse = RpcResponse.builder()

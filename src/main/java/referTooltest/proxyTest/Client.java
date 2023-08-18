@@ -1,4 +1,4 @@
-package refertools.proxyTest;
+package referTooltest.proxyTest;
 
 
 import java.lang.reflect.InvocationHandler;
@@ -30,7 +30,7 @@ public class Client{
         System.out.println("proxy.getClass(): " + proxy.getClass());
         System.out.println("UserService.class: " + UserService.class);
         try{
-            System.out.println("class: " + Class.forName("refertools.proxyTest.UserService"));
+            System.out.println("class: " + Class.forName("referTooltest.proxyTest.UserService"));
         }
         catch (ClassNotFoundException e){
             e.printStackTrace();

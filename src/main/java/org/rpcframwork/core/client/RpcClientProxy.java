@@ -4,14 +4,13 @@ import org.rpcframwork.core.codec.RpcRequestBody;
 import org.rpcframwork.core.codec.RpcResponseBody;
 import org.rpcframwork.core.rpc_protocol.RpcRequest;
 import org.rpcframwork.core.rpc_protocol.RpcResponse;
+import org.rpcframwork.core.serialize.kyro.KryoSerializer;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+
 
 // 通过动态代理返回返回clazz的代理类，名字为RPC客户端代理
 public class RpcClientProxy implements InvocationHandler {
@@ -36,22 +35,8 @@ public class RpcClientProxy implements InvocationHandler {
                 .parameters(args)
                 .build();
 
-//        RpcRequestBody rpcRequestBody = RpcRequestBody.builderaConsturctor()
-//                .setInterfaceName(method.getName())
-//                .setMethodName(method.getName())
-//                .setParamTypes(method.getParameterTypes())
-//                .setParameters(args)
-//                .build();
-
-        // ByteArrayOutputStream 对byte类型数据进行写入的类 相当于一个中间缓冲层，将类写入到文件等其他outputStream。它是对字节进行操作，属于内存操作流
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-        // ObjectOutputStream(OutputStream out) 创建写入指定 OutputStream 的ObjectOutputStream。
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
-
-        // void writeObject(Object obj) 将指定的对象写入 ObjectOutputStream。
-        oos.writeObject(rpcRequestBody);
-        byte[] bytes = baos.toByteArray();
+        KryoSerializer kryoSerializer = new KryoSerializer();
+        byte[] bytes = kryoSerializer.serialize(rpcRequestBody);
 
         // 2、创建RPC协议，将Header、Body的内容设置好（Body中存放调用编码）【protocol层】
         RpcRequest rpcRequest = RpcRequest.builder()
@@ -70,10 +55,10 @@ public class RpcClientProxy implements InvocationHandler {
         if (header.equals("version=1")) {
             // 将RpcResponse的body中的返回编码，解码成我们需要的对象Object并返回【codec层】
             // 拿到结果，反序列化成我们所需要的对象
-            ByteArrayInputStream bais = new ByteArrayInputStream(body);
-            ObjectInputStream ois = new ObjectInputStream(bais);
-            RpcResponseBody rpcResponseBody = (RpcResponseBody) ois.readObject();
+            RpcResponseBody rpcResponseBody = kryoSerializer.deserialize(body, RpcResponseBody.class);
+            // 拿出body对象中的Object
             Object retObject = rpcResponseBody.getRetObject();
+
             return retObject;
         }
         return null;

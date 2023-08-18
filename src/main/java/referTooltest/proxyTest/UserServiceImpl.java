@@ -1,4 +1,4 @@
-package refertools.proxyTest;
+package referTooltest.proxyTest;
 
 public class UserServiceImpl implements UserService{
     public void select(){
