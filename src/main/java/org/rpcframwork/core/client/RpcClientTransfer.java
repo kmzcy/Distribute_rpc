@@ -11,6 +11,7 @@ import java.net.Socket;
 // 传入protocol层的RpcRequest，输出protocol层的RpcResponse
 // 实际就是走socket层发包
 public class RpcClientTransfer {
+    // 省略注册中心
 
     public RpcResponse sendRequest(RpcRequest rpcRequest) {
         try (Socket socket = new Socket("localhost", 9000)) {
@@ -22,7 +23,6 @@ public class RpcClientTransfer {
 
             // 等待responce
             RpcResponse rpcResponse = (RpcResponse) objectInputStream.readObject();
-
             return rpcResponse;
 
         } catch (IOException | ClassNotFoundException e) {

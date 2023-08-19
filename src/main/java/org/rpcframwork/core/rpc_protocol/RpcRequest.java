@@ -18,6 +18,5 @@ public class RpcRequest implements Serializable {
     // 协议体部分
     private byte[] body;
 
-
 }
 

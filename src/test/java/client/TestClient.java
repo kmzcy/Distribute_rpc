@@ -3,22 +3,18 @@ package client;
 import org.rpcframwork.IDL.Hello.HelloRequest;
 import org.rpcframwork.IDL.Hello.HelloResponse;
 import org.rpcframwork.IDL.Hello.HelloService;
-import org.rpcframwork.core.client.RpcClientProxy;
+import org.rpcframwork.core.client.ClientService;
 
 public class TestClient {
     public static void main(String[] args) {
-        // 获取RpcService
-        RpcClientProxy proxy = new RpcClientProxy();
-        HelloService helloService = proxy.getService(HelloService.class);
-        // 构造出请求对象HelloRequest
+        // 获取HelloService
+        ClientService clientService = new ClientService();
+        HelloService helloService = clientService.getService(HelloService.class);
         HelloRequest helloRequest = new HelloRequest("from tesClient");
 
         // 调用hellow 方法
-        // rpc调用并返回结果对象HelloResponse
         HelloResponse helloResponse = helloService.hello(helloRequest);
-        // 从HelloResponse中获取msg
         String helloMsg = helloResponse.getMsg();
-        // 打印msg
         System.out.println(helloMsg);
 
         // 调用hi方法
@@ -26,11 +22,5 @@ public class TestClient {
         String hiMsg = hiResponse.getMsg();
         System.out.println(hiMsg);
 
-        // 调用ping方法
-        // PingService pingService = proxy.getService(PingService.class);
-        // PingRequest pingRequest = new PingRequest("tom");
-        // PingResponse pingResponse = pingService.ping(pingRequest);
-        // String pingMsg = pingResponse.getMsg();
-        // ystem.out.println(pingMsg);
     }
 }

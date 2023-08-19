@@ -14,6 +14,12 @@ import java.lang.reflect.Proxy;
 
 // 通过动态代理返回返回clazz的代理类，名字为RPC客户端代理
 public class RpcClientProxy implements InvocationHandler {
+    RpcClientTransfer rpcClient;
+
+    public RpcClientProxy(RpcClientTransfer rpcClient){
+        this.rpcClient = rpcClient;
+    }
+
     @SuppressWarnings("unchecked")
     public <T> T getService(Class<T> clazz) {
         // 如果没有实现类，在调用Proxy.newProxyInstance时，要注意传入的interfaces参数，
@@ -45,7 +51,6 @@ public class RpcClientProxy implements InvocationHandler {
                 .build();
 
         // 3、发送RpcRequest，获得RpcResponse 【网络传输层】
-        RpcClientTransfer rpcClient = new RpcClientTransfer();
         RpcResponse rpcResponse = rpcClient.sendRequest(rpcRequest);
 
         // 4、解析RpcResponse，也就是在解析rpc协议【protocol层】

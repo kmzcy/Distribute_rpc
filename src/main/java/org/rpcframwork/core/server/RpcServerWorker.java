@@ -6,6 +6,9 @@ import org.rpcframwork.core.rpc_protocol.RpcRequest;
 import org.rpcframwork.core.rpc_protocol.RpcResponse;
 import org.rpcframwork.core.serialize.kyro.KryoSerializer;
 
+import org.rpcframwork.core.registry.RegisterCenter;
+import org.rpcframwork.utils.Factory.SingletonFactory;
+
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -15,11 +18,11 @@ import java.util.HashMap;
 public class RpcServerWorker implements Runnable{ //继承runnable，作为一个线程
 
     private Socket socket;
-    private HashMap<String, Object> registeredService;
+    private final RegisterCenter registerCenter;
 
-    public RpcServerWorker(Socket socket, HashMap<String, Object> registeredService) {
+    public RpcServerWorker(Socket socket) {
         this.socket = socket;
-        this.registeredService = registeredService;
+        registerCenter = SingletonFactory.getInstance(RegisterCenter.class);
     }
 
     @Override
@@ -41,7 +44,7 @@ public class RpcServerWorker implements Runnable{ //继承runnable，作为一�
                 RpcRequestBody rpcRequestBody = kryoSerializer.deserialize(body, RpcRequestBody.class) ;
 
                 // 调用服务
-                Object service = registeredService.get(rpcRequestBody.getInterfaceName());
+                Object service = registerCenter.getService(rpcRequestBody.getInterfaceName());
                 // invoke反射
                 Method method = service.getClass().getMethod(rpcRequestBody.getMethodName(), rpcRequestBody.getParamTypes());
                 Object returnObject = method.invoke(service, rpcRequestBody.getParameters());
