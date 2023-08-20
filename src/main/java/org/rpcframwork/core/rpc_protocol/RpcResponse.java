@@ -14,6 +14,7 @@ import java.io.Serializable;
 // Serializable：对象变成可传输的字节序列
 public class RpcResponse implements Serializable {
     // 协议头部分
+
     private String header;
     // 协议体部分
     private byte[] body;

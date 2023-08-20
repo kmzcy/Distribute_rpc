@@ -3,7 +3,7 @@ package client;
 import org.rpcframwork.IDL.Hello.HelloRequest;
 import org.rpcframwork.IDL.Hello.HelloResponse;
 import org.rpcframwork.IDL.Hello.HelloService;
-import org.rpcframwork.core.client.ClientService;
+import org.rpcframwork.core.remote.client.ClientService;
 
 public class TestClient {
     public static void main(String[] args) {

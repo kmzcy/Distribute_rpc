@@ -1,7 +1,9 @@
-package org.rpcframwork.core.client;
+package org.rpcframwork.core.remote.client.socket;
 
 import org.rpcframwork.core.codec.RpcRequestBody;
 import org.rpcframwork.core.codec.RpcResponseBody;
+import org.rpcframwork.core.remote.client.RpcClientProxy;
+import org.rpcframwork.core.remote.client.RpcClientTransfer;
 import org.rpcframwork.core.rpc_protocol.RpcRequest;
 import org.rpcframwork.core.rpc_protocol.RpcResponse;
 import org.rpcframwork.core.serialize.kyro.KryoSerializer;
@@ -13,11 +15,11 @@ import java.lang.reflect.Proxy;
 
 
 // 通过动态代理返回返回clazz的代理类，名字为RPC客户端代理
-public class RpcClientProxy implements InvocationHandler {
-    RpcClientTransfer rpcClient;
+public class SocketRpcClientProxy implements InvocationHandler, RpcClientProxy {
+    RpcClientTransfer rpcClientTransfer;
 
-    public RpcClientProxy(RpcClientTransfer rpcClient){
-        this.rpcClient = rpcClient;
+    public SocketRpcClientProxy(RpcClientTransfer rpcClientTransfer){
+        this.rpcClientTransfer = rpcClientTransfer;
     }
 
     @SuppressWarnings("unchecked")
@@ -31,7 +33,7 @@ public class RpcClientProxy implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
-        // 1、将调用所需信息编码成bytes[]，即有了调用编码【codec层】
+        // 构建请求体
         // .builder() 它其实是一种设计模式，叫做建造者模式，它的含义是将一个复杂的对象的构建与它的表示分离，同样的构建过程可以创建不同的表示
         // 这里使用了lombok进行了优化
         RpcRequestBody rpcRequestBody = RpcRequestBody.builder()
@@ -51,7 +53,7 @@ public class RpcClientProxy implements InvocationHandler {
                 .build();
 
         // 3、发送RpcRequest，获得RpcResponse 【网络传输层】
-        RpcResponse rpcResponse = rpcClient.sendRequest(rpcRequest);
+        RpcResponse rpcResponse = rpcClientTransfer.sendRequest(rpcRequest);
 
         // 4、解析RpcResponse，也就是在解析rpc协议【protocol层】
         String header = rpcResponse.getHeader();

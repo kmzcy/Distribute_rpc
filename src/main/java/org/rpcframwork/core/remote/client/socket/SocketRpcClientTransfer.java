@@ -1,5 +1,6 @@
-package org.rpcframwork.core.client;
+package org.rpcframwork.core.remote.client.socket;
 
+import org.rpcframwork.core.remote.client.RpcClientTransfer;
 import org.rpcframwork.core.rpc_protocol.RpcRequest;
 import org.rpcframwork.core.rpc_protocol.RpcResponse;
 
@@ -10,7 +11,7 @@ import java.net.Socket;
 
 // 传入protocol层的RpcRequest，输出protocol层的RpcResponse
 // 实际就是走socket层发包
-public class RpcClientTransfer {
+public class SocketRpcClientTransfer implements RpcClientTransfer {
     // 省略注册中心
 
     public RpcResponse sendRequest(RpcRequest rpcRequest) {
@@ -21,7 +22,7 @@ public class RpcClientTransfer {
             objectOutputStream.writeObject(rpcRequest);
             objectOutputStream.flush();
 
-            // 等待responce
+            // 等待response
             RpcResponse rpcResponse = (RpcResponse) objectInputStream.readObject();
             return rpcResponse;
 
