@@ -1,21 +1,20 @@
 package org.rpcframwork.core.remote.server.socket;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.util.concurrent.*;
 
-import org.rpcframwork.core.registry.RegisterCenter;
+import org.rpcframwork.core.registry.ServiceRegistry;
+import org.rpcframwork.core.registry.zookeeper.ServiceRegistryImp;
 import org.rpcframwork.core.remote.server.RpcServer;
+import org.rpcframwork.core.rpc_protocol.ServiceStatement;
 import org.rpcframwork.utils.Factory.SingletonFactory;
 import org.rpcframwork.utils.exception.RpcException;
 
 public class SocketRpcServer implements RpcServer {
     private final ExecutorService threadPool;
     // interfaceName -> interfaceImplementation object
-    private final RegisterCenter registerCenter;
+    private final ServiceRegistry serviceRegistry;
     private final int PORT = 9000;
 
     public SocketRpcServer() {
@@ -28,15 +27,15 @@ public class SocketRpcServer implements RpcServer {
         ThreadFactory threadFactory = Executors.defaultThreadFactory();
 
         this.threadPool = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, TimeUnit.SECONDS, workingQueue, threadFactory);
-        registerCenter = SingletonFactory.getInstance(RegisterCenter.class);
+        this.serviceRegistry = SingletonFactory.getInstance(ServiceRegistryImp.class);
     }
 
     // 参数service就是interface的implementation object，用于注册一个服务
-    public void register(Object service) {
+    public void register(ServiceStatement service) {
         try{
             InetAddress addr = InetAddress.getLocalHost();
-            System.out.println("addr.getAddress(): " + addr.getAddress());
-            registerCenter.addService(service, addr);
+            InetSocketAddress inetSocketAddress = new InetSocketAddress(addr, PORT);
+            System.out.println("inetSocketAddress.getAddress().getHostAddress(): " + inetSocketAddress.getAddress().getHostAddress());
         }catch (UnknownHostException e){
             throw new RpcException("register failed", e);
         }
@@ -55,4 +54,6 @@ public class SocketRpcServer implements RpcServer {
             e.printStackTrace();
         }
     }
+
+
 }

@@ -13,7 +13,8 @@ public enum RpcErrorMessageEnum {
     SERVICE_CAN_NOT_BE_FOUND("没有找到指定的服务"),
     SERVICE_NOT_IMPLEMENT_ANY_INTERFACE("注册的服务没有实现任何接口"),
     REQUEST_NOT_MATCH_RESPONSE("返回结果错误！请求和返回的相应不匹配"),
-    PROTOCOL_VERSION_NOT_MATCH("协议版本号不匹配当前版本");
+    PROTOCOL_VERSION_NOT_MATCH("协议版本号不匹配当前版本"),
+    SERVICE_VERSION_NOT_MATCH("服务版本号不匹配当前版本");
 
     private final String message;
 

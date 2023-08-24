@@ -5,6 +5,7 @@ import org.rpcframwork.core.codec.RpcResponseBody;
 import org.rpcframwork.core.registry.RegisterCenter;
 import org.rpcframwork.core.rpc_protocol.RpcRequest;
 import org.rpcframwork.core.rpc_protocol.RpcResponse;
+import org.rpcframwork.core.rpc_protocol.ServiceStatement;
 import org.rpcframwork.core.serialize.kyro.KryoSerializer;
 import org.rpcframwork.utils.Factory.SingletonFactory;
 import org.rpcframwork.utils.enums.RpcErrorMessageEnum;
@@ -33,9 +34,9 @@ public class ServerRequestHandler {
      */
     public RpcResponse handle(RpcRequest rpcRequest){
         RpcRequestBody rpcRequestBody = protocolDecode(rpcRequest);
-        Object service = registerCenter.getService(rpcRequestBody.getInterfaceName());
-        Object result = invokeTargetMethod(rpcRequestBody, service);
-        return protocolEncode(result);
+        ServiceStatement serviceStatement = registerCenter.getService(rpcRequestBody.getInterfaceName());
+        Object result = invokeTargetMethod(rpcRequestBody, serviceStatement);
+        return protocolEncode(result,rpcRequestBody, serviceStatement);
     }
 
     /**
@@ -44,7 +45,7 @@ public class ServerRequestHandler {
      * @return rpcRequestBody
      */
     public RpcRequestBody protocolDecode(RpcRequest rpcRequest){
-        // 服务器端信息核对
+        // RPC报文信息核对
         if (!rpcRequest.getHeader().equals("version=1")){
             throw new RpcException(RpcErrorMessageEnum.PROTOCOL_VERSION_NOT_MATCH);
         }
@@ -61,11 +62,18 @@ public class ServerRequestHandler {
      * @param o
      * @return RPC协议传回对象
      */
-    public RpcResponse protocolEncode(Object o){
+    public RpcResponse protocolEncode(Object result, RpcRequestBody rpcRequestBody, ServiceStatement serviceStatement){
         // 1、将returnObject编码成bytes[]即变成了返回编码【codec层】
         RpcResponseBody rpcResponseBody = RpcResponseBody.builder()
-                .retObject(o)
+                .version(serviceStatement.getVersion())
+                .group(serviceStatement.getGroup())
+                .requestId(rpcRequestBody.getRequestId())
+                .interfaceName(rpcRequestBody.getInterfaceName())
+                .methodName(rpcRequestBody.getMethodName())
+                .message("none")
+                .retObject(result)
                 .build();
+
         // RpcResponseBody对象序列化
         byte[] bytes = kryoSerializer.serialize(rpcResponseBody);
 
@@ -81,18 +89,28 @@ public class ServerRequestHandler {
     /**
      * 传入请求的服务的对象和注册中心中获得的提供服务的对象，通过反射的方式调用服务
      * @param rpcRequestBody
-     * @param service
+     * @param serviceStatement
      * @return 调用方法的结果
      */
-    private Object invokeTargetMethod(RpcRequestBody rpcRequestBody, Object service) {
-        Object returnObject;
+    private Object invokeTargetMethod(RpcRequestBody rpcRequestBody, ServiceStatement serviceStatement) {
+        // 校验服务，校验rpcRequestBody和serviceStatement的版本号group号是否匹配
+        if(!rpcRequestBody.getVersion().equals(serviceStatement.getVersion())){
+            throw new RpcException(RpcErrorMessageEnum.SERVICE_VERSION_NOT_MATCH,
+                    "When handel the request in server the service version provided and requested are not match");
+        }
+        if(!rpcRequestBody.getGroup().equals(serviceStatement.getGroup())){
+            throw new RpcException(RpcErrorMessageEnum.SERVICE_VERSION_NOT_MATCH,
+                    "When handel the request in server the service version provided and requested are not match");
+        }
+
+        Object service = serviceStatement.getService();
         try{
             // invoke反射
             Method method = service.getClass().getMethod(rpcRequestBody.getMethodName(), rpcRequestBody.getParamTypes());
-            returnObject = method.invoke(service, rpcRequestBody.getParameters());
+            Object returnObject = method.invoke(service, rpcRequestBody.getParameters());
+            return returnObject;
         }catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e){
             throw new RpcException(e.getMessage(), e);
         }
-       return returnObject;
     }
 }

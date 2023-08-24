@@ -2,6 +2,8 @@ package org.rpcframwork.core.remote.client;
 import org.rpcframwork.core.rpc_protocol.RpcRequest;
 import org.rpcframwork.core.rpc_protocol.RpcResponse;
 
+import java.net.InetSocketAddress;
+
 
 public interface RpcClientTransfer {
     /**
@@ -10,5 +12,5 @@ public interface RpcClientTransfer {
      * @return
      */
 
-    RpcResponse sendRequest(RpcRequest rpcRequest);
+    RpcResponse sendRequest(RpcRequest rpcRequest, InetSocketAddress inetSocketAddress);
 }
