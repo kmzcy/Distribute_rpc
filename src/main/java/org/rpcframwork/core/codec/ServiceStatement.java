@@ -1,6 +1,8 @@
-package org.rpcframwork.core.rpc_protocol;
+package org.rpcframwork.core.codec;
 
 import lombok.*;
+
+import java.io.Serializable;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -8,7 +10,8 @@ import lombok.*;
 @Setter
 @Builder
 @ToString
-public class ServiceStatement {
+public class ServiceStatement implements Serializable {
+    private static final long serialVersionUID = 715745410238261116L;
     /**
      * 服务的版本
      */

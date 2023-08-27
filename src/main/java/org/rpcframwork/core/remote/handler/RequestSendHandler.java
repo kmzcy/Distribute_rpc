@@ -55,8 +55,8 @@ public class RequestSendHandler {
                 .group("group1")
                 .interfaceName(method.getDeclaringClass().getName())
                 .methodName(method.getName())
-                .paramTypes(method.getParameterTypes())
                 .parameters(args)
+                .paramTypes(method.getParameterTypes())
                 .build();
     }
 
@@ -69,5 +69,9 @@ public class RequestSendHandler {
                 .header("version=1")
                 .body(bytes)
                 .build();
+    }
+
+    public String getRequestId(){
+        return RequestIdProvider.getRequestId();
     }
 }

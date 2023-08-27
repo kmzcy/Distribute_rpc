@@ -1,11 +1,13 @@
 package org.rpcframwork.core.remote.handler;
 
+import lombok.extern.slf4j.Slf4j;
 import org.rpcframwork.core.codec.RpcRequestBody;
 import org.rpcframwork.core.codec.RpcResponseBody;
-import org.rpcframwork.core.registry.RegisterCenter;
+import org.rpcframwork.core.registry.ServiceProvider;
+import org.rpcframwork.core.registry.zookeeper.ServiceProviderImp;
 import org.rpcframwork.core.rpc_protocol.RpcRequest;
 import org.rpcframwork.core.rpc_protocol.RpcResponse;
-import org.rpcframwork.core.rpc_protocol.ServiceStatement;
+import org.rpcframwork.core.codec.ServiceStatement;
 import org.rpcframwork.core.serialize.kyro.KryoSerializer;
 import org.rpcframwork.utils.Factory.SingletonFactory;
 import org.rpcframwork.utils.enums.RpcErrorMessageEnum;
@@ -13,16 +15,23 @@ import org.rpcframwork.utils.exception.RpcException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
+
+import static org.rpcframwork.core.remote.server.socket.SocketRpcServer.PORT;
 
 /**
  *  通过反射的方式处理所有的RPC请求
  */
+
+@Slf4j
 public class ServerRequestHandler {
-    private final RegisterCenter registerCenter;
+    private final ServiceProvider serviceProvider;
     private final KryoSerializer kryoSerializer;
     public ServerRequestHandler(){
         // 需要提供：注册了什么注册中心，使用了什么样的序列化
-        registerCenter = SingletonFactory.getInstance(RegisterCenter.class);
+        serviceProvider = SingletonFactory.getInstance(ServiceProviderImp.class);
         // 序列化应改成接口
         kryoSerializer = SingletonFactory.getInstance(KryoSerializer.class);
     }
@@ -33,10 +42,22 @@ public class ServerRequestHandler {
      * @return RpcResponse
      */
     public RpcResponse handle(RpcRequest rpcRequest){
+        InetAddress addr = null;
+        try{
+            addr = InetAddress.getLocalHost();
+        }catch (UnknownHostException e){
+            log.error("RpcResponse handle get localhost fail.");
+            e.printStackTrace();
+        }
         RpcRequestBody rpcRequestBody = protocolDecode(rpcRequest);
-        ServiceStatement serviceStatement = registerCenter.getService(rpcRequestBody.getInterfaceName());
+
+        InetSocketAddress inetSocketAddress = new InetSocketAddress(addr.toString().replaceAll(".*/", ""), PORT);
+        String fullServiceName = rpcRequestBody.getRpcServiceName() + inetSocketAddress;
+        log.info("In RpcResponse handle, Client ask for: " + fullServiceName);
+        ServiceStatement serviceStatement = kryoSerializer.deserialize(serviceProvider.getService(fullServiceName), ServiceStatement.class);
         Object result = invokeTargetMethod(rpcRequestBody, serviceStatement);
-        return protocolEncode(result,rpcRequestBody, serviceStatement);
+
+        return protocolEncode(result, rpcRequestBody, serviceStatement);
     }
 
     /**
@@ -59,7 +80,7 @@ public class ServerRequestHandler {
 
     /**
      * 用于将返回的对象放入RPC协议之中
-     * @param o
+     * @param result
      * @return RPC协议传回对象
      */
     public RpcResponse protocolEncode(Object result, RpcRequestBody rpcRequestBody, ServiceStatement serviceStatement){

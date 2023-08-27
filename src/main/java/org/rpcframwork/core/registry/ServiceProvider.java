@@ -1,23 +1,13 @@
 package org.rpcframwork.core.registry;
 
-import org.rpcframwork.core.rpc_protocol.ServiceStatement;
+import org.rpcframwork.core.codec.ServiceStatement;
 
 public interface ServiceProvider {
 
     /**
-     * @param serviceStatement 传入记录RPC服务状态的类
-     */
-    void addService(ServiceStatement serviceStatement);
-
-    /**
-     * @param rpcServiceName 传入RPC服务的名字
+     * @param rpcServiceName org.rpcframwork.IDL.Hello.HelloServicegroup1version1/127.0.0.1:9999
      * @return service object
      */
-    Object getService(String rpcServiceName);
-
-    /**
-     * @param serviceStatement 传入记录RPC服务状态的类
-     */
-    void publishService(ServiceStatement serviceStatement);
+    byte[] getService(String rpcServiceName);
 
 }

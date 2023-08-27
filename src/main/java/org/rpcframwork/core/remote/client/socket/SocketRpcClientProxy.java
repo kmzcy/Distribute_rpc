@@ -1,14 +1,14 @@
 package org.rpcframwork.core.remote.client.socket;
 
 import org.rpcframwork.core.codec.RpcRequestBody;
-import org.rpcframwork.core.codec.RpcResponseBody;
+import org.rpcframwork.core.registry.ServiceDiscovery;
+import org.rpcframwork.core.registry.zookeeper.ServiceDiscoveryImp;
 import org.rpcframwork.core.remote.client.RpcClientProxy;
 import org.rpcframwork.core.remote.client.RpcClientTransfer;
 import org.rpcframwork.core.remote.handler.RequestGetHandler;
 import org.rpcframwork.core.remote.handler.RequestSendHandler;
 import org.rpcframwork.core.rpc_protocol.RpcRequest;
 import org.rpcframwork.core.rpc_protocol.RpcResponse;
-import org.rpcframwork.core.serialize.kyro.KryoSerializer;
 import org.rpcframwork.utils.Factory.SingletonFactory;
 
 
@@ -23,11 +23,13 @@ public class SocketRpcClientProxy implements InvocationHandler, RpcClientProxy {
     private RpcClientTransfer rpcClientTransfer;
     private final RequestSendHandler requestSendHandler;
     private final RequestGetHandler requestGetHandler;
+    private final ServiceDiscovery serviceDiscovery;
 
     public SocketRpcClientProxy(RpcClientTransfer rpcClientTransfer){
         this.rpcClientTransfer = rpcClientTransfer;
         requestSendHandler = SingletonFactory.getInstance(RequestSendHandler.class);
         requestGetHandler = SingletonFactory.getInstance(RequestGetHandler.class);
+        serviceDiscovery = SingletonFactory.getInstance(ServiceDiscoveryImp.class);
     }
 
     @SuppressWarnings("unchecked")
@@ -42,10 +44,14 @@ public class SocketRpcClientProxy implements InvocationHandler, RpcClientProxy {
     public Object invoke(Object proxy, Method method, Object[] args){
 
         // 处理请求获取RpcRequest
-        RpcRequest rpcRequest = requestSendHandler.handler(method, args);
+        RpcRequestBody requestBody = requestSendHandler.BuildRequestBody(method, args, requestSendHandler.getRequestId());
+        byte[] bytes = requestSendHandler.Serializer(requestBody);
+        RpcRequest rpcRequest =  requestSendHandler.BuildRpcRequest(bytes);
 
         // 从注册中心获取相关服务的
-        InetSocketAddress inetSocketAddress = new InetSocketAddress("localhost", 9000);
+        InetSocketAddress inetSocketAddress = serviceDiscovery.lookupService(requestBody);
+        // System.out.println("inetSocketAddress: " + inetSocketAddress);
+
         // 3、发送RpcRequest，获得RpcResponse 【网络传输层】
         RpcResponse rpcResponse = rpcClientTransfer.sendRequest(rpcRequest, inetSocketAddress);
 

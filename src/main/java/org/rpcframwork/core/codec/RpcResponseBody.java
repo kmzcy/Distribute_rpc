@@ -11,6 +11,9 @@ import java.io.Serializable;
 @Builder
 @ToString
 // 返回值编码
+/**
+ * interfaceName为全名： org.rpcframwork.IDL.Hello.HelloService
+ */
 public class RpcResponseBody implements Serializable {
     private static final long serialVersionUID = 715745410605631233L;
     private String version;
@@ -22,6 +25,9 @@ public class RpcResponseBody implements Serializable {
     private Object retObject;
 
     public String getRpcServiceName() {
-        return this.getInterfaceName() + this.getGroup() + this.getVersion();
+        return this.getServiceName() + this.getGroup() + this.getVersion();
+    }
+    public String getServiceName() {
+        return this.interfaceName;
     }
 }

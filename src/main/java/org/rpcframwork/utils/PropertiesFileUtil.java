@@ -18,7 +18,7 @@ public final class PropertiesFileUtil {
         String rpcConfigPath = "";
         if(url != null){
             rpcConfigPath = url.getPath();
-            System.out.println("rpcConfigPath: " + rpcConfigPath);
+            log.info("read properties file from rpcConfigPath: [{}]", rpcConfigPath);
         }
         Properties properties = null;
         try(InputStreamReader inputStreamReader = new InputStreamReader(

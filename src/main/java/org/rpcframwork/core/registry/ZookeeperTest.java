@@ -22,19 +22,20 @@ public class ZookeeperTest {
 
         zkClient.start();
         try{
-            Watcher watcher = watchedEvent -> System.out.println("监听到的变化 watchedEvent = " + watchedEvent);
+            // Watcher watcher = watchedEvent -> System.out.println("监听到的变化 watchedEvent = " + watchedEvent);
 
-            zkClient.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath("/node1");
+            // zkClient.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath("/node1");
             // zkClient.delete().forPath("/node1");
-            byte[] content = zkClient.getData().usingWatcher(watcher).forPath("/node1");
+            // byte[] content = zkClient.getData().usingWatcher(watcher).forPath("/node1");
 
-            log.info("监听节点内容：" + new String(content));
+            // log.info("监听节点内容：" + new String(content));
 
-            System.out.println("zkClient.checkExists().forPath(\"/node1\"): " + zkClient.checkExists().forPath("/node1"));
+            System.out.println("zkClient.checkExists().forPath(\"/distribute_rpc/org.rpcframwork.IDL.Hello.HelloServicegroup1version1/192.168.137.3:9000\"): "
+                    + zkClient.checkExists().forPath("/distribute_rpc/org.rpcframwork.IDL.Hello.HelloServicegroup1version1/192.168.137.3:9000"));
 
-            zkClient.setData().forPath("/node1", "/node2".getBytes());
+            // zkClient.setData().forPath("/node1", "/node2".getBytes());
 
-            System.out.println("zkClient.checkExists().forPath(\"/node1\"): " + zkClient.checkExists().forPath("/node1"));
+            // System.out.println("zkClient.checkExists().forPath(\"/node1\"): " + zkClient.checkExists().forPath("/node1"));
 
         }catch (Exception e){
             System.out.println("catch");

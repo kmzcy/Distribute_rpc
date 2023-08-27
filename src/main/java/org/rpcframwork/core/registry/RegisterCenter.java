@@ -1,8 +1,7 @@
 package org.rpcframwork.core.registry;
 
-import org.rpcframwork.core.rpc_protocol.ServiceStatement;
+import org.rpcframwork.core.codec.ServiceStatement;
 
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 

@@ -5,9 +5,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 注册服务，服务的标识为：InterfaceName/version/group）
+ * 注册服务，服务的标识（rpc service name）为：org.rpcframwork.IDL.Hello.HelloServicegroup1version1
  *
- *  String: rpc service name(service.getInterfaceName())
+ *  String: rpc service name eg:/distribute_rpc/org.rpcframwork.IDL.Hello.HelloServicegroup1version1
+ *                           rpcServiceName 对应 ServiceStatement 中的 getRpcServiceName()
  *  InetSocketAddress: inetSocketAddress service address
  */
 

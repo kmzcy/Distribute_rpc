@@ -7,8 +7,6 @@ import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.imps.CuratorFrameworkState;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
-import org.apache.curator.framework.state.ConnectionState;
-import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 import org.rpcframwork.utils.PropertiesFileUtil;
@@ -40,11 +38,12 @@ public class CuratorUtils {
     /**
      * 创建永久的节点
      * @param zkClient
-     * @param path
+     * @param rpcServiceName rpcServiceName 跟 ServiceStatement 的 getRpcServiceName() 方法挂钩
      */
-    public static void createPersistentNode(CuratorFramework zkClient, String path){
+    public static void createPersistentNode(CuratorFramework zkClient, String rpcServiceName){
+        String path = ZK_REGISTER_ROOT_PATH + "/" + rpcServiceName;
         try {
-            // eg: /distribute_rpc/InterfaceName.version.group/127.0.0.1:9999
+            // eg: /distribute_rpc/org.rpcframwork.IDL.Hello.HelloServicegroup1version1/192.168.137.3:9000
             if (REGISTERED_PATH_SET.contains(path) || zkClient.checkExists().forPath(path) != null) {
                 log.info("The node already exists. The node is:[{}]", path);
             } else {
@@ -57,13 +56,14 @@ public class CuratorUtils {
         }
     }
 
-    public static void createEphemeralNode(CuratorFramework zkClient, String path){
+    public static void createEphemeralNode(CuratorFramework zkClient, String rpcServiceName, byte[] serviceStatement){
+        String path = ZK_REGISTER_ROOT_PATH + "/" + rpcServiceName;
         try {
-            // eg: /distribute_rpc/InterfaceName.version.group/127.0.0.1:9999
+            // eg: org.rpcframwork.IDL.Hello.HelloServicegroup1version1/127.0.0.1:9999
             if (REGISTERED_PATH_SET.contains(path) || zkClient.checkExists().forPath(path) != null) {
                 log.info("The node already exists. The node is:[{}]", path);
             } else {
-                zkClient.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(path);
+                zkClient.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(path, serviceStatement);
                 log.info("The node was created successfully. The node is:[{}]", path);
             }
             REGISTERED_PATH_SET.add(path);
@@ -75,7 +75,8 @@ public class CuratorUtils {
     /**
      * 获取一个节点下的所有子节点，用于发现服务
      *
-     * @param rpcServiceName rpc service name eg:/distribute_rpc/InterfaceName.version.group
+     * @param rpcServiceName rpc service name eg:/distribute_rpc/org.rpcframwork.IDL.Hello.HelloServicegroup1version1
+     *                       rpcServiceName 对应 ServiceStatement 中的 getRpcServiceName()
      * @return All child nodes under the specified node
      */
     public static List<String> getChildrenNodes(CuratorFramework zkClient, String rpcServiceName) {
@@ -89,10 +90,28 @@ public class CuratorUtils {
             result = zkClient.getChildren().forPath(servicePath);
             SERVICE_ADDRESS_MAP.put(rpcServiceName, result);
             // 为这个节点的子节点注册watcher
-            registerWatcher(rpcServiceName, zkClient);
+            registerWatcher(zkClient, rpcServiceName);
         } catch (Exception e) {
             log.error("get children nodes for path [{}] fail", servicePath);
         }
+        return result;
+    }
+
+    /**
+     *
+     * @param zkClient
+     * @param fullServiceName 全名 org.rpcframwork.IDL.Hello.HelloServicegroup1version1/192.168.137.3:9000
+     * @return
+     */
+    public static byte[] getNodesContent(CuratorFramework zkClient, String fullServiceName) {
+        String fullNodeName = ZK_REGISTER_ROOT_PATH + "/" + fullServiceName;
+        byte[] result = null;
+        try{
+            result = zkClient.getData().forPath(fullNodeName);
+        }catch (Exception e){
+            log.error("return object fail");
+        }
+
         return result;
     }
 
@@ -102,7 +121,7 @@ public class CuratorUtils {
      * @param zkClient
      * @throws Exception
      */
-    private static void registerWatcher(String rpcServiceName, CuratorFramework zkClient) throws Exception {
+    private static void registerWatcher(CuratorFramework zkClient, String rpcServiceName) throws Exception {
         String servicePath = ZK_REGISTER_ROOT_PATH + "/" + rpcServiceName;
         PathChildrenCache pathChildrenCache = new PathChildrenCache(zkClient, servicePath, true);
         PathChildrenCacheListener pathChildrenCacheListener = (curatorFramework, pathChildrenCacheEvent) -> {
@@ -114,11 +133,13 @@ public class CuratorUtils {
     }
 
     /**
-     * 通过 CuratorFramework创建 zkClient
+     * 删除某节点下的所有子节点，当使用永久节点注册时这个方法会出现在 SeverShutdownHook 中，当服务器正常关闭时删除服务器提供的所有服务节点
+     * 但是现在代表服务器的子节点改成了临时节点，这个方法暂时没用了，当然它也可以用来删除整个服务，因为服务本身还是永久节点
      * @param zkClient
-     * @param inetSocketAddress
+     * @param inetSocketAddress 其 toString()方法返回格式如下：127.0.0.1:9999
      */
     public static void clearRegistry(CuratorFramework zkClient, InetSocketAddress inetSocketAddress){
+        // org.rpcframwork.IDL.Hello.HelloServicegroup1version1/127.0.0.1:9999
         System.out.println(inetSocketAddress.toString());
         REGISTERED_PATH_SET.stream().parallel().forEach(path -> {
             try {
@@ -151,10 +172,10 @@ public class CuratorUtils {
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(BASE_SLEEP_TIME, MAX_RETRIES);
 
         zkClient = CuratorFrameworkFactory.builder()
-                .connectString(zookeeperAddress)
+                .connectString(zookeeperAddress).sessionTimeoutMs(5000)
                 .retryPolicy(retryPolicy)
                 .build();
-        
+
         zkClient.start();
         try {
             // wait 30s until connect to the zookeeper
@@ -169,6 +190,5 @@ public class CuratorUtils {
 
     public static void main(String[] args){
         CuratorFramework zkClient = CuratorUtils.getZkClient();
-
     }
 }
