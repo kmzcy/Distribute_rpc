@@ -2,7 +2,7 @@ package org.rpcframwork.core.remote.client.socket;
 
 import org.rpcframwork.core.codec.RpcRequestBody;
 import org.rpcframwork.core.registry.ServiceDiscovery;
-import org.rpcframwork.core.registry.zookeeper.ServiceDiscoveryImp;
+import org.rpcframwork.core.registry.zookeeper.ZkServiceDiscoveryImp;
 import org.rpcframwork.core.remote.client.RpcClientProxy;
 import org.rpcframwork.core.remote.client.RpcClientTransfer;
 import org.rpcframwork.core.remote.handler.RequestGetHandler;
@@ -29,7 +29,7 @@ public class SocketRpcClientProxy implements InvocationHandler, RpcClientProxy {
         this.rpcClientTransfer = rpcClientTransfer;
         requestSendHandler = SingletonFactory.getInstance(RequestSendHandler.class);
         requestGetHandler = SingletonFactory.getInstance(RequestGetHandler.class);
-        serviceDiscovery = SingletonFactory.getInstance(ServiceDiscoveryImp.class);
+        serviceDiscovery = SingletonFactory.getInstance(ZkServiceDiscoveryImp.class);
     }
 
     @SuppressWarnings("unchecked")

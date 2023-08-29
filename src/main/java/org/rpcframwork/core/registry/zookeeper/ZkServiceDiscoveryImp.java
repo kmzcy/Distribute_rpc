@@ -14,10 +14,10 @@ import java.net.InetSocketAddress;
 import java.util.List;
 
 @Slf4j
-public class ServiceDiscoveryImp implements ServiceDiscovery {
+public class ZkServiceDiscoveryImp implements ServiceDiscovery {
     public static CuratorFramework zkClient; // 用于连接zookeeper的客户端
     private final LoadBalance loadBalance;
-    public ServiceDiscoveryImp(){
+    public ZkServiceDiscoveryImp(){
         zkClient = CuratorUtils.getZkClient();
         loadBalance = SingletonFactory.getInstance(ConsistentHashLoadBalance.class);
     }

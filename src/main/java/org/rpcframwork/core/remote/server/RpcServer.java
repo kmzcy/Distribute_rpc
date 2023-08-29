@@ -12,9 +12,9 @@ import java.util.List;
 public interface RpcServer {
     /**
      * 将服务器提供的方法注册到注册中心
-     * @param serviceList
+     * @param serviceProvider
      */
-    void register(List<ServiceStatement> serviceList);
+    void register(Object serviceProvider);
 
     /**
      * 启动服务器

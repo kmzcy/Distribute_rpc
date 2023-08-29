@@ -3,7 +3,9 @@ package server;
 import org.rpcframwork.IDL.Hello.HelloRequest;
 import org.rpcframwork.IDL.Hello.HelloResponse;
 import org.rpcframwork.IDL.Hello.HelloService;
+import org.rpcframwork.core.spring.annotation.RpcService;
 
+@RpcService(version = "version1", group = "group1")
 public class HelloServiceImpl implements HelloService {
     @Override
     public HelloResponse hello(HelloRequest request) {

@@ -140,7 +140,7 @@ public class CuratorUtils {
      */
     public static void clearRegistry(CuratorFramework zkClient, InetSocketAddress inetSocketAddress){
         // org.rpcframwork.IDL.Hello.HelloServicegroup1version1/127.0.0.1:9999
-        System.out.println(inetSocketAddress.toString());
+        // System.out.println(inetSocketAddress.toString());
         REGISTERED_PATH_SET.stream().parallel().forEach(path -> {
             try {
                 if(path.endsWith(inetSocketAddress.toString())){
@@ -166,7 +166,7 @@ public class CuratorUtils {
         if (zkClient != null && zkClient.getState() == CuratorFrameworkState.STARTED){
             return zkClient;
         }
-        System.out.println("zookeeperAddress: " + zookeeperAddress);
+        log.info("zookeeperAddress: [{}]", zookeeperAddress);
 
         // 设置重启策略ExponentialBackoffRetry是SleepingRetry的一个子类，基本的实际上就是暂停一段时间后（sleep）进行重试
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(BASE_SLEEP_TIME, MAX_RETRIES);

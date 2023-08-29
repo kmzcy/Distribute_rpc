@@ -11,9 +11,9 @@ import org.rpcframwork.core.registry.ServiceRegistry;
 import java.util.Map;
 
 @Slf4j
-public class ServiceRegistryImp implements ServiceRegistry {
+public class ZkServiceRegistryImp implements ServiceRegistry {
     public static CuratorFramework zkClient; // 用于连接zookeeper的客户端
-    public ServiceRegistryImp(){
+    public ZkServiceRegistryImp(){
         zkClient = CuratorUtils.getZkClient();
     }
     @Override

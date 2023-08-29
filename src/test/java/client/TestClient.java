@@ -21,6 +21,5 @@ public class TestClient {
         HelloResponse hiResponse = helloService.hi(helloRequest);
         String hiMsg = hiResponse.getMsg();
         System.out.println(hiMsg);
-
     }
 }

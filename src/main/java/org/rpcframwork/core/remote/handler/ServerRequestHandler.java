@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.rpcframwork.core.codec.RpcRequestBody;
 import org.rpcframwork.core.codec.RpcResponseBody;
 import org.rpcframwork.core.registry.ServiceProvider;
-import org.rpcframwork.core.registry.zookeeper.ServiceProviderImp;
+import org.rpcframwork.core.registry.zookeeper.ZkServiceProviderImp;
 import org.rpcframwork.core.rpc_protocol.RpcRequest;
 import org.rpcframwork.core.rpc_protocol.RpcResponse;
 import org.rpcframwork.core.codec.ServiceStatement;
@@ -31,7 +31,7 @@ public class ServerRequestHandler {
     private final KryoSerializer kryoSerializer;
     public ServerRequestHandler(){
         // 需要提供：注册了什么注册中心，使用了什么样的序列化
-        serviceProvider = SingletonFactory.getInstance(ServiceProviderImp.class);
+        serviceProvider = SingletonFactory.getInstance(ZkServiceProviderImp.class);
         // 序列化应改成接口
         kryoSerializer = SingletonFactory.getInstance(KryoSerializer.class);
     }

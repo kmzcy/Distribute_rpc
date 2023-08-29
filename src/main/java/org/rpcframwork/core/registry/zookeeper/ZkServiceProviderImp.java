@@ -3,9 +3,9 @@ package org.rpcframwork.core.registry.zookeeper;
 import org.apache.curator.framework.CuratorFramework;
 import org.rpcframwork.core.registry.ServiceProvider;
 
-public class ServiceProviderImp implements ServiceProvider {
+public class ZkServiceProviderImp implements ServiceProvider {
     public static CuratorFramework zkClient; // 用于连接zookeeper的客户端
-    public ServiceProviderImp(){
+    public ZkServiceProviderImp(){
         zkClient = CuratorUtils.getZkClient();
     }
 
