@@ -20,8 +20,8 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class CustomScannerRegistrar implements ImportBeanDefinitionRegistrar, ResourceLoaderAware {
     // 扫描spring 原生的bean
-    private static final String SPRING_BEAN_BASE_PACKAGE = "org.rpcframwork";
-    private static final String BASE_PACKAGE_ATTRIBUTE_NAME = "basePackage";
+    private static final String SPRING_BEAN_BASE_PACKAGE = "org.rpcframwork.core";
+    private static final String BASE_PACKAGE_ATTRIBUTE_NAME = "packageToScan";
 
     private ResourceLoader resourceLoader = new DefaultResourceLoader();
 
@@ -44,11 +44,10 @@ public class CustomScannerRegistrar implements ImportBeanDefinitionRegistrar, Re
             rpcServiceScanner.setResourceLoader(resourceLoader);
             SpringBeanScanner.setResourceLoader(resourceLoader);
         }
-
         int rpcServiceAmount = rpcServiceScanner.scan(ScanPackages);
-        log.info("springBeanScanner扫描的数量 [{}]", rpcServiceAmount);
+        log.info("rpcServiceScanner扫描的数量 [{}]", rpcServiceAmount);
 
-        int springBeanAmount =  SpringBeanScanner.scan(SPRING_BEAN_BASE_PACKAGE);
+        int springBeanAmount = SpringBeanScanner.scan(SPRING_BEAN_BASE_PACKAGE);
         log.info("springBeanScanner扫描的数量 [{}]", springBeanAmount);
 
     }

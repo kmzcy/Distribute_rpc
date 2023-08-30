@@ -11,6 +11,7 @@ import java.io.Serializable;
 @Setter
 @Builder
 @ToString
+
 public class HelloResponse implements Serializable {
     private String msg;
 }

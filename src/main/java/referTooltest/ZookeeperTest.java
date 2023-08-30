@@ -1,4 +1,4 @@
-package org.rpcframwork.core.registry;
+package referTooltest;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.RetryPolicy;

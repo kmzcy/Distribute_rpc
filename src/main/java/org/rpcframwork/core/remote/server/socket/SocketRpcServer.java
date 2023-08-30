@@ -21,9 +21,12 @@ import org.rpcframwork.utils.Factory.SingletonFactory;
 import org.rpcframwork.utils.Factory.ThreadPoolFactoryUtil;
 import org.rpcframwork.utils.ServerShutdownHook;
 import org.rpcframwork.utils.exception.RpcException;
+import org.springframework.stereotype.Component;
 
 @Slf4j
+@Component
 public class SocketRpcServer implements RpcServer {
+
     private final ExecutorService threadPool;
     private final ServiceRegistry serviceRegistry;
 

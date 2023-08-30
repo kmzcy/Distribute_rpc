@@ -9,11 +9,10 @@ import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.curator.utils.CloseableUtils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LeaderLatchTest {
+public class ZkLeaderLatchTest {
 
     protected static String PATH = "/francis/leader";
     private final static String connectionInfo = "192.168.137.128:2181";

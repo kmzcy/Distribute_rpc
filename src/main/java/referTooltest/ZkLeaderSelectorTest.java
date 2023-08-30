@@ -19,7 +19,7 @@ import org.apache.curator.utils.EnsurePath;
  *  LeaderSelector-0 relinquish leadership!
  *      ...
  */
-public class LeaderSelectorTest {
+public class ZkLeaderSelectorTest {
 
     /** Zookeeper info */
     private static final String ZK_ADDRESS = "192.168.137.128:2181";

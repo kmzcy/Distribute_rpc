@@ -3,7 +3,7 @@ package org.rpcframwork.core.remote.client.socket;
 import org.rpcframwork.core.codec.RpcRequestBody;
 import org.rpcframwork.core.registry.ServiceDiscovery;
 import org.rpcframwork.core.registry.zookeeper.ZkServiceDiscoveryImp;
-import org.rpcframwork.core.remote.client.RpcClientProxy;
+import org.rpcframwork.core.remote.client.RpcClientProxyBuilder;
 import org.rpcframwork.core.remote.client.RpcClientTransfer;
 import org.rpcframwork.core.remote.handler.RequestGetHandler;
 import org.rpcframwork.core.remote.handler.RequestSendHandler;
@@ -19,21 +19,23 @@ import java.net.InetSocketAddress;
 
 
 // 通过动态代理返回返回clazz的代理类，名字为RPC客户端代理
-public class SocketRpcClientProxy implements InvocationHandler, RpcClientProxy {
+public class SocketRpcClientProxyBuilderBuilder implements InvocationHandler, RpcClientProxyBuilder {
     private RpcClientTransfer rpcClientTransfer;
+    private RpcRequestBody requestBody;
     private final RequestSendHandler requestSendHandler;
     private final RequestGetHandler requestGetHandler;
     private final ServiceDiscovery serviceDiscovery;
 
-    public SocketRpcClientProxy(RpcClientTransfer rpcClientTransfer){
+    public SocketRpcClientProxyBuilderBuilder(RpcClientTransfer rpcClientTransfer, RpcRequestBody requestBody){
         this.rpcClientTransfer = rpcClientTransfer;
+        this.requestBody = requestBody;
         requestSendHandler = SingletonFactory.getInstance(RequestSendHandler.class);
         requestGetHandler = SingletonFactory.getInstance(RequestGetHandler.class);
         serviceDiscovery = SingletonFactory.getInstance(ZkServiceDiscoveryImp.class);
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T getService(Class<T> clazz) {
+    public <T> T getProxy(Class<T> clazz) {
         // 如果没有实现类，在调用Proxy.newProxyInstance时，要注意传入的interfaces参数，
         // 没有实现类，则需要用new Class[]{ProxyInterface.class}的方法传入，这样就可以生成代理了，
         // 如果传的是new Class[0]，那么默认只会给toString方法代理
@@ -43,14 +45,16 @@ public class SocketRpcClientProxy implements InvocationHandler, RpcClientProxy {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args){
 
-        // 处理请求获取RpcRequest
-        RpcRequestBody requestBody = requestSendHandler.BuildRequestBody(method, args, requestSendHandler.getRequestId());
-        byte[] bytes = requestSendHandler.Serializer(requestBody);
-        RpcRequest rpcRequest =  requestSendHandler.BuildRpcRequest(bytes);
+        // 为requestBody添加信息
+        requestBody.setInterfaceName(method.getDeclaringClass().getName());
+        requestBody.setMethodName(method.getName());
+        requestBody.setParameters(args);
+        requestBody.setParamTypes(method.getParameterTypes());
+
+        RpcRequest rpcRequest =  requestSendHandler.handler(requestBody);
 
         // 从注册中心获取相关服务的
         InetSocketAddress inetSocketAddress = serviceDiscovery.lookupService(requestBody);
-        // System.out.println("inetSocketAddress: " + inetSocketAddress);
 
         // 3、发送RpcRequest，获得RpcResponse 【网络传输层】
         RpcResponse rpcResponse = rpcClientTransfer.sendRequest(rpcRequest, inetSocketAddress);
